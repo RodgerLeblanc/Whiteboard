@@ -1,0 +1,180 @@
+{
+    "versionLabel": "2.0.0",
+    "uuid": "7319fbb6-bda7-4ea8-9190-30c582f4278f",
+    "appKeys": {},
+    "longName": "BigTime Whiteboard",
+    "versionCode": 2,
+    "capabilities": [
+        ""
+    ],
+    "shortName": "BigTime Whiteboard",
+    "companyName": "Roger Leblanc",
+    "watchapp": {
+        "watchface": true
+    },
+    "resources": {
+        "media": [
+            {
+                "menuIcon": true,
+                "type": "png",
+                "name": "IMAGE_MENU_ICON",
+                "file": "images/menu_icon_big_watch.png"
+            },
+            {
+                "type": "png",
+                "name": "QTP_IMAGE_NONE",
+                "file": "images/none.png"
+            },
+            {
+                "type": "png",
+                "name": "QTP_IMAGE_SNOW",
+                "file": "images/snow.png"
+            },
+            {
+                "type": "png",
+                "name": "QTP_IMAGE_RAIN",
+                "file": "images/rain.png"
+            },
+            {
+                "type": "png",
+                "name": "QTP_IMAGE_THUNDERSTORM",
+                "file": "images/thunderstorm.png"
+            },
+            {
+                "type": "png",
+                "name": "QTP_IMAGE_CLOUDY",
+                "file": "images/cloudy.png"
+            },
+            {
+                "type": "png",
+                "name": "QTP_IMAGE_ATMOSPHERE_DAY",
+                "file": "images/atmosphere.png"
+            },
+            {
+                "type": "png",
+                "name": "QTP_IMAGE_ATMOSPHERE_NIGHT",
+                "file": "images/atmosphere_night.png"
+            },
+            {
+                "type": "png",
+                "name": "QTP_IMAGE_CLEAR_NIGHT",
+                "file": "images/clear_night.png"
+            },
+            {
+                "type": "png",
+                "name": "QTP_IMAGE_CLEAR_DAY",
+                "file": "images/clear_day.png"
+            },
+            {
+                "type": "png",
+                "name": "QTP_IMG_BAT",
+                "file": "images/battery.png"
+            },
+            {
+                "type": "png",
+                "name": "QTP_IMG_BT",
+                "file": "images/bluetooth.png"
+            },
+            {
+                "type": "png",
+                "name": "IMAGE_NUM_19",
+                "file": "images/num_19.png"
+            },
+            {
+                "type": "png",
+                "name": "IMAGE_NUM_18",
+                "file": "images/num_18.png"
+            },
+            {
+                "type": "png",
+                "name": "IMAGE_NUM_17",
+                "file": "images/num_17.png"
+            },
+            {
+                "type": "png",
+                "name": "IMAGE_NUM_16",
+                "file": "images/num_16.png"
+            },
+            {
+                "type": "png",
+                "name": "IMAGE_NUM_15",
+                "file": "images/num_15.png"
+            },
+            {
+                "type": "png",
+                "name": "IMAGE_NUM_14",
+                "file": "images/num_14.png"
+            },
+            {
+                "type": "png",
+                "name": "IMAGE_NUM_13",
+                "file": "images/num_13.png"
+            },
+            {
+                "type": "png",
+                "name": "IMAGE_NUM_12",
+                "file": "images/num_12.png"
+            },
+            {
+                "type": "png",
+                "name": "IMAGE_NUM_11",
+                "file": "images/num_11.png"
+            },
+            {
+                "type": "png",
+                "name": "IMAGE_NUM_10",
+                "file": "images/num_10.png"
+            },
+            {
+                "type": "png",
+                "name": "IMAGE_NUM_0",
+                "file": "images/num_0.png"
+            },
+            {
+                "type": "png",
+                "name": "IMAGE_NUM_1",
+                "file": "images/num_1.png"
+            },
+            {
+                "type": "png",
+                "name": "IMAGE_NUM_2",
+                "file": "images/num_2.png"
+            },
+            {
+                "type": "png",
+                "name": "IMAGE_NUM_3",
+                "file": "images/num_3.png"
+            },
+            {
+                "type": "png",
+                "name": "IMAGE_NUM_4",
+                "file": "images/num_4.png"
+            },
+            {
+                "type": "png",
+                "name": "IMAGE_NUM_5",
+                "file": "images/num_5.png"
+            },
+            {
+                "type": "png",
+                "name": "IMAGE_NUM_6",
+                "file": "images/num_6.png"
+            },
+            {
+                "type": "png",
+                "name": "IMAGE_NUM_7",
+                "file": "images/num_7.png"
+            },
+            {
+                "type": "png",
+                "name": "IMAGE_NUM_8",
+                "file": "images/num_8.png"
+            },
+            {
+                "type": "png",
+                "name": "IMAGE_NUM_9",
+                "file": "images/num_9.png"
+            }
+        ]
+    }
+}
