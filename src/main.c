@@ -45,6 +45,28 @@ int min = 61;
 
 bool was_BTconnected_last_time;
 
+/*
+
+ Each duration corresponds to alternating on/off periods, starting on.
+
+ An even number of segments means the last period will be the
+ minimum time between the end of this pattern and the start of the
+ next queued pattern (if any). If odd, a spacing time will be used in
+ its place.
+
+ */
+
+static const VibePattern custom_pattern_20 = {
+  .durations = (uint32_t []) {300, 300, 300, 300, 300, 300, 300, 300},
+  .num_segments = 8
+};  // 4 medium vibes
+
+static const VibePattern custom_pattern_10 = {
+  .durations = (uint32_t []) {100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100},
+  .num_segments = 12
+};  // 6 short vibes
+
+
 static GBitmap *images[TOTAL_IMAGE_SLOTS];
 static BitmapLayer *image_layers[TOTAL_IMAGE_SLOTS];
 
@@ -208,14 +230,35 @@ void bluetooth_handler(bool connected) {
 	was_BTconnected_last_time = connected;
 }
 
+void make_vibes_20()  {
+	vibes_enqueue_custom_pattern(custom_pattern_20);
+}
+
+void make_vibes_10()  {
+	vibes_enqueue_custom_pattern(custom_pattern_10);
+}
+
+void battery_handler() {
+	BatteryChargeState batt;
+	batt = battery_state_service_peek();
+	if ((batt.charge_percent <= 20) && (batt.charge_percent > 10))  {
+		make_vibes_20();
+	}
+	if (batt.charge_percent <= 10)  {
+		make_vibes_10();
+	}
+}
+
 static void init() {
     window = window_create();
     window_stack_push(window, true);
 	was_BTconnected_last_time = bluetooth_connection_service_peek();
 	// Avoids a blank screen on watch start.
 	bluetooth_handler(was_BTconnected_last_time);
-    tick_timer_service_subscribe(MINUTE_UNIT, handle_minute_tick);
+	battery_handler();
+	tick_timer_service_subscribe(MINUTE_UNIT, handle_minute_tick);
 	bluetooth_connection_service_subscribe( bluetooth_handler );
+	battery_state_service_subscribe( battery_handler );	
 }
 
 static void deinit() {
@@ -230,6 +273,7 @@ static void deinit() {
 	qtp_app_deinit();
 	tick_timer_service_unsubscribe();
 	bluetooth_connection_service_unsubscribe();
+	battery_state_service_unsubscribe();	
 }
 
 int main(void) {
