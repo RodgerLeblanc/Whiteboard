@@ -1,5 +1,5 @@
 {
-    "versionLabel": "2.0.0",
+    "versionLabel": "2.5",
     "uuid": "7319fbb6-bda7-4ea8-9190-30c582f4478f",
     "appKeys": {},
     "longName": "BigTime Whiteboard",
@@ -7,7 +7,7 @@
     "capabilities": [
         ""
     ],
-    "shortName": "BigTime Whiteboard",
+    "shortName": "Whiteboard",
     "companyName": "Roger Leblanc",
     "watchapp": {
         "watchface": true
@@ -77,103 +77,53 @@
             },
             {
                 "type": "png",
-                "name": "IMAGE_NUM_19",
+                "name": "IMAGE_NUM_9",
                 "file": "images/num_19.png"
             },
             {
                 "type": "png",
-                "name": "IMAGE_NUM_18",
+                "name": "IMAGE_NUM_8",
                 "file": "images/num_18.png"
             },
             {
                 "type": "png",
-                "name": "IMAGE_NUM_17",
+                "name": "IMAGE_NUM_7",
                 "file": "images/num_17.png"
             },
             {
                 "type": "png",
-                "name": "IMAGE_NUM_16",
+                "name": "IMAGE_NUM_6",
                 "file": "images/num_16.png"
             },
             {
                 "type": "png",
-                "name": "IMAGE_NUM_15",
+                "name": "IMAGE_NUM_5",
                 "file": "images/num_15.png"
             },
             {
                 "type": "png",
-                "name": "IMAGE_NUM_14",
+                "name": "IMAGE_NUM_4",
                 "file": "images/num_14.png"
             },
             {
                 "type": "png",
-                "name": "IMAGE_NUM_13",
+                "name": "IMAGE_NUM_3",
                 "file": "images/num_13.png"
             },
             {
                 "type": "png",
-                "name": "IMAGE_NUM_12",
+                "name": "IMAGE_NUM_2",
                 "file": "images/num_12.png"
             },
             {
                 "type": "png",
-                "name": "IMAGE_NUM_11",
+                "name": "IMAGE_NUM_1",
                 "file": "images/num_11.png"
             },
             {
                 "type": "png",
-                "name": "IMAGE_NUM_10",
-                "file": "images/num_10.png"
-            },
-            {
-                "type": "png",
                 "name": "IMAGE_NUM_0",
-                "file": "images/num_0.png"
-            },
-            {
-                "type": "png",
-                "name": "IMAGE_NUM_1",
-                "file": "images/num_1.png"
-            },
-            {
-                "type": "png",
-                "name": "IMAGE_NUM_2",
-                "file": "images/num_2.png"
-            },
-            {
-                "type": "png",
-                "name": "IMAGE_NUM_3",
-                "file": "images/num_3.png"
-            },
-            {
-                "type": "png",
-                "name": "IMAGE_NUM_4",
-                "file": "images/num_4.png"
-            },
-            {
-                "type": "png",
-                "name": "IMAGE_NUM_5",
-                "file": "images/num_5.png"
-            },
-            {
-                "type": "png",
-                "name": "IMAGE_NUM_6",
-                "file": "images/num_6.png"
-            },
-            {
-                "type": "png",
-                "name": "IMAGE_NUM_7",
-                "file": "images/num_7.png"
-            },
-            {
-                "type": "png",
-                "name": "IMAGE_NUM_8",
-                "file": "images/num_8.png"
-            },
-            {
-                "type": "png",
-                "name": "IMAGE_NUM_9",
-                "file": "images/num_9.png"
+                "file": "images/num_10.png"
             }
         ]
     }

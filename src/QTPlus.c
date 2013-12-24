@@ -73,13 +73,18 @@ void qtp_update_bluetooth_status(bool mark_dirty) {
 
 /* Update the text layer for the clock */
 void qtp_update_time(bool mark_dirty) {
-        static char time_text[10];
-        clock_copy_time_string(time_text, sizeof(time_text));
-        text_layer_set_text(qtp_time_layer, time_text);
-
+		// This part was changed to display date instead of time
+		static char date_text[] = "Xxxxxxxxx 00";
+		static struct tm* now;
+		time_t temp;
+		temp = time(NULL);  
+		now = localtime(&temp);   
+     
+		strftime(date_text, sizeof(date_text), "%B %e", now);
+		text_layer_set_text(qtp_time_layer, date_text);
         if (mark_dirty) {
                 layer_mark_dirty(text_layer_get_layer(qtp_time_layer));
-        }
+		} 
 }
 
 
@@ -162,14 +167,14 @@ void qtp_init() {
 
         /* Time Layer */
         if (qtp_is_show_time()) {
-
-                GRect time_frame = GRect( QTP_PADDING_X, QTP_PADDING_Y, QTP_SCREEN_WIDTH - QTP_PADDING_X, QTP_TIME_HEIGHT );
+				GRect time_frame = GRect( QTP_PADDING_X, QTP_PADDING_Y, QTP_SCREEN_WIDTH - QTP_PADDING_X, QTP_TIME_HEIGHT );
                 qtp_time_layer = text_layer_create(time_frame);
                 qtp_update_time(false);
                 text_layer_set_text_alignment(qtp_time_layer, GTextAlignmentCenter);
                 text_layer_set_font(qtp_time_layer, fonts_get_system_font(FONT_KEY_GOTHIC_28));
                 layer_add_child(window_get_root_layer(qtp_window), text_layer_get_layer(qtp_time_layer));
-        }
+			
+       }
 
         /* Setup weather if it is enabled */
         if (qtp_is_show_weather()) {

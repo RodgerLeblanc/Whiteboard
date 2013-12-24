@@ -1,35 +1,17 @@
 /*
  
- Big Time watch
- 
- A digital watch with large digits.
- 
- 
- A few things complicate the implementation of this watch:
- 
- a) The largest size of the Nevis font which the Pebble handles
- seems to be ~47 units (points or pixels?). But the size of
- characters we want is ~100 points.
- 
- This requires us to generate and use images instead of
- fonts--which complicates things greatly.
- 
- b) When I started it wasn't possible to load all the images into
- RAM at once--this means we have to load/unload each image when
- we need it. The images are slightly smaller now than they were
- but I figured it would still be pushing it to load them all at
- once, even if they just fit, so I've stuck with the load/unload
- approach.
- 
+This watchface loads black digits on a white screen and inverts it if the bluetooth connection is lost.
+I added "Quick Tap Plus" for battery level lookup. Check it here : https://github.com/grep-awesome/QuickTapPlus
+
  */
 
 #include "pebble.h"
 #include "QTPlus.h"
 	
-
 static Window *window;
 
 TextLayer *connection_layer;
+InverterLayer *inv_layer;
 
 //
 // There's only enough memory to load about 6 of 10 required images
@@ -46,7 +28,7 @@ TextLayer *connection_layer;
 //
 #define TOTAL_IMAGE_SLOTS 4
 
-#define NUMBER_OF_IMAGES 20
+#define NUMBER_OF_IMAGES 10
 
 // These images are 72 x 84 pixels (i.e. a quarter of the display),
 // black and white with the digit character centered in the image.
@@ -55,16 +37,13 @@ const int IMAGE_RESOURCE_IDS[NUMBER_OF_IMAGES] = {
     RESOURCE_ID_IMAGE_NUM_0, RESOURCE_ID_IMAGE_NUM_1, RESOURCE_ID_IMAGE_NUM_2,
     RESOURCE_ID_IMAGE_NUM_3, RESOURCE_ID_IMAGE_NUM_4, RESOURCE_ID_IMAGE_NUM_5,
     RESOURCE_ID_IMAGE_NUM_6, RESOURCE_ID_IMAGE_NUM_7, RESOURCE_ID_IMAGE_NUM_8,
-    RESOURCE_ID_IMAGE_NUM_9, RESOURCE_ID_IMAGE_NUM_10, RESOURCE_ID_IMAGE_NUM_11, RESOURCE_ID_IMAGE_NUM_12,
-    RESOURCE_ID_IMAGE_NUM_13, RESOURCE_ID_IMAGE_NUM_14, RESOURCE_ID_IMAGE_NUM_15,
-    RESOURCE_ID_IMAGE_NUM_16, RESOURCE_ID_IMAGE_NUM_17, RESOURCE_ID_IMAGE_NUM_18,
-    RESOURCE_ID_IMAGE_NUM_19
+    RESOURCE_ID_IMAGE_NUM_9
 };
 
-bool BT_connection_state = true;
-bool was_BTconnected_last_time = true;
-
+// Set to 61 so it refresh on window load
 int min = 61;
+
+bool was_BTconnected_last_time;
 
 static GBitmap *images[TOTAL_IMAGE_SLOTS];
 static BitmapLayer *image_layers[TOTAL_IMAGE_SLOTS];
@@ -78,7 +57,8 @@ static BitmapLayer *image_layers[TOTAL_IMAGE_SLOTS];
 static int image_slot_state[TOTAL_IMAGE_SLOTS] = {EMPTY_SLOT, EMPTY_SLOT, EMPTY_SLOT, EMPTY_SLOT};
 
 static void load_digit_image_into_slot(int slot_number, int digit_value) {
-    /*
+
+	/*
      
      Loads the digit image from the application's resources and
      displays it on-screen in the correct location.
@@ -102,9 +82,6 @@ static void load_digit_image_into_slot(int slot_number, int digit_value) {
     }
     
     image_slot_state[slot_number] = digit_value;
-	if ((bluetooth_connection_service_peek())) {
-       digit_value = digit_value + 10;
-	}
 	images[slot_number] = gbitmap_create_with_resource(IMAGE_RESOURCE_IDS[digit_value]);
     GRect frame = (GRect) {
         .origin = { (slot_number % 2) * 72, (slot_number / 2) * 84 },
@@ -113,7 +90,7 @@ static void load_digit_image_into_slot(int slot_number, int digit_value) {
     BitmapLayer *bitmap_layer = bitmap_layer_create(frame);
     image_layers[slot_number] = bitmap_layer;
     bitmap_layer_set_bitmap(bitmap_layer, images[slot_number]);
-    Layer *window_layer = window_get_root_layer(window);
+	Layer *window_layer = window_get_root_layer(window);
     layer_add_child(window_layer, bitmap_layer_get_layer(bitmap_layer));
 }
 
@@ -150,15 +127,6 @@ static void display_value(unsigned short value, unsigned short row_number, bool 
      i.e. displays ' 0' rather than '00'.
      
      */
-
-	// Set background color
-	if (bluetooth_connection_service_peek())  {
-		window_set_background_color(window, GColorWhite);
-	}
-	else {
-		window_set_background_color(window, GColorBlack);
-	}
-
 	
 	value = value % 100; // Maximum of two digits per row.
     
@@ -192,67 +160,76 @@ static void display_time(struct tm *tick_time) {
     
     // TODO: Use `units_changed` and more intelligence to reduce
     //       redundant digit unload/load?
-    
-	// Refresh the screen if BT connection state changed
-	if (bluetooth_connection_service_peek())  {
-		// Update display if BT connection is made
-		if (!(was_BTconnected_last_time))  {
-			display_value(get_display_hour(tick_time->tm_hour), 0, false);
-			display_value(tick_time->tm_min, 1, true);
-		}
-	}
-	else  {
-		// Update display if BT connection is lost
-		if ((was_BTconnected_last_time))  {
-			vibes_double_pulse();
-			display_value(get_display_hour(tick_time->tm_hour), 0, false);
-			display_value(tick_time->tm_min, 1, true);
-		}
-			
-	}
-
+	
 	// This is to make sure the screen is not refreshed every second
-	// UPDATE : Not refreshing if BT connection is lost
 	if (tick_time->tm_min != min)  {
-		display_value(get_display_hour(tick_time->tm_hour), 0, false);
-		display_value(tick_time->tm_min, 1, true);
-		min = tick_time->tm_min;
+		if (was_BTconnected_last_time)  {
+			window_set_background_color(window, GColorWhite);
+			display_value(get_display_hour(tick_time->tm_hour), 0, false);
+			display_value(tick_time->tm_min, 1, true);
+			min = tick_time->tm_min;
+		}
+		else  {
+			// Destroy previous inverter layer to make sure there's no inverted spot if first digit is missing (ie: " 0:12")
+			inverter_layer_destroy(inv_layer);
+			window_set_background_color(window, GColorWhite);
+			display_value(get_display_hour(tick_time->tm_hour), 0, false);
+			display_value(tick_time->tm_min, 1, true);
+			min = tick_time->tm_min;
+			//Inverter layer
+			inv_layer = inverter_layer_create(GRect(0, 0, 144, 168));
+			layer_add_child(window_get_root_layer(window), (Layer*) inv_layer);	
+		}		
 	}
-
-	// Set the last known BT connection state
-	was_BTconnected_last_time = bluetooth_connection_service_peek();
 }
 
-static void handle_second_tick(struct tm *tick_time, TimeUnits units_changed) {
+static void handle_minute_tick(struct tm *tick_time, TimeUnits units_changed) {
     display_time(tick_time);
 }
 
-static void make_vibes(void) {
-	vibes_double_pulse();
+void bluetooth_handler(bool connected) {
+	//	This handler is called when BT connection state changes
+
+	// Destroy inverter layer if BT changed from disconnected to connected
+	if ((connected) && (!(was_BTconnected_last_time)))  {
+		inverter_layer_destroy(inv_layer);
+	}
+	time_t now = time(NULL);
+    struct tm *tick_time = localtime(&now);
+	window_set_background_color(window, GColorWhite);
+	display_value(get_display_hour(tick_time->tm_hour), 0, false);
+	display_value(tick_time->tm_min, 1, true);
+	//Inverter layer in case of disconnect
+	if (!(connected)) {
+		inv_layer = inverter_layer_create(GRect(0, 0, 144, 168));
+		layer_add_child(window_get_root_layer(window), (Layer*) inv_layer);	
+		vibes_double_pulse();
+	}
+	was_BTconnected_last_time = connected;
 }
 
 static void init() {
     window = window_create();
     window_stack_push(window, true);
-
-	// Set the last known BT connection state
 	was_BTconnected_last_time = bluetooth_connection_service_peek();
-	
-    // Avoids a blank screen on watch start.
-    time_t now = time(NULL);
-    struct tm *tick_time = localtime(&now);
-    display_time(tick_time);
-
-    tick_timer_service_subscribe(SECOND_UNIT, handle_second_tick);
+	// Avoids a blank screen on watch start.
+	bluetooth_handler(was_BTconnected_last_time);
+    tick_timer_service_subscribe(MINUTE_UNIT, handle_minute_tick);
+	bluetooth_connection_service_subscribe( bluetooth_handler );
 }
 
 static void deinit() {
     for (int i = 0; i < TOTAL_IMAGE_SLOTS; i++) {
         unload_digit_image_from_slot(i);
-    }
-    
+    }    
     window_destroy(window);
+	// Destroy inverter if last screen was inverted
+	if (!(was_BTconnected_last_time))  {
+		inverter_layer_destroy(inv_layer);
+	}
 	qtp_app_deinit();
+	tick_timer_service_unsubscribe();
+	bluetooth_connection_service_unsubscribe();
 }
 
 int main(void) {
