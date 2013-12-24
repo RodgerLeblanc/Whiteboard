@@ -40,10 +40,19 @@ const int IMAGE_RESOURCE_IDS[NUMBER_OF_IMAGES] = {
     RESOURCE_ID_IMAGE_NUM_9
 };
 
+GColor background_color = GColorWhite;
+
 // Set to 61 so it refresh on window load
 int min = 61;
 
 bool was_BTconnected_last_time;
+
+// There's a bug with the battery_state_service_suscribe that makes it call the function even though
+// the battery percent did not changed. Those 2 bool are to avoid this bug.
+bool battery_below_20_already_triggered = false;
+bool battery_below_10_already_triggered = false;
+
+BatteryChargeState batt;
 
 /*
 
@@ -186,7 +195,7 @@ static void display_time(struct tm *tick_time) {
 	// This is to make sure the screen is not refreshed every second
 	if (tick_time->tm_min != min)  {
 		if (was_BTconnected_last_time)  {
-			window_set_background_color(window, GColorWhite);
+			window_set_background_color(window, background_color);
 			display_value(get_display_hour(tick_time->tm_hour), 0, false);
 			display_value(tick_time->tm_min, 1, true);
 			min = tick_time->tm_min;
@@ -194,7 +203,7 @@ static void display_time(struct tm *tick_time) {
 		else  {
 			// Destroy previous inverter layer to make sure there's no inverted spot if first digit is missing (ie: " 0:12")
 			inverter_layer_destroy(inv_layer);
-			window_set_background_color(window, GColorWhite);
+			window_set_background_color(window, background_color);
 			display_value(get_display_hour(tick_time->tm_hour), 0, false);
 			display_value(tick_time->tm_min, 1, true);
 			min = tick_time->tm_min;
@@ -218,7 +227,7 @@ void bluetooth_handler(bool connected) {
 	}
 	time_t now = time(NULL);
     struct tm *tick_time = localtime(&now);
-	window_set_background_color(window, GColorWhite);
+	window_set_background_color(window, background_color);
 	display_value(get_display_hour(tick_time->tm_hour), 0, false);
 	display_value(tick_time->tm_min, 1, true);
 	//Inverter layer in case of disconnect
@@ -239,13 +248,25 @@ void make_vibes_10()  {
 }
 
 void battery_handler() {
-	BatteryChargeState batt;
 	batt = battery_state_service_peek();
 	if ((batt.charge_percent <= 20) && (batt.charge_percent > 10))  {
-		make_vibes_20();
+		if (!(battery_below_20_already_triggered))  {
+			make_vibes_20();
+			battery_below_20_already_triggered = true;
+		}
 	}
 	if (batt.charge_percent <= 10)  {
-		make_vibes_10();
+		if (!(battery_below_10_already_triggered))  {
+			make_vibes_10();
+			battery_below_10_already_triggered = true;
+		}
+	}
+	// Reinitiate values to false if battery is charging and passed the 30% level
+	if (batt.charge_percent >= 30)  {
+		battery_below_20_already_triggered = false;
+	}
+	if (batt.charge_percent >= 20)  {
+		battery_below_10_already_triggered = false;
 	}
 }
 
@@ -253,6 +274,14 @@ static void init() {
     window = window_create();
     window_stack_push(window, true);
 	was_BTconnected_last_time = bluetooth_connection_service_peek();
+	
+	batt = battery_state_service_peek();
+	if (batt.charge_percent <= 10)  {
+		battery_below_10_already_triggered = true;
+	}
+	if (batt.charge_percent <= 20)  {
+		battery_below_20_already_triggered = true;
+	}
 	// Avoids a blank screen on watch start.
 	bluetooth_handler(was_BTconnected_last_time);
 	battery_handler();
