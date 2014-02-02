@@ -279,7 +279,8 @@ void qtp_deinit() {
         }
         window_destroy(qtp_window);
         if (qtp_is_autohide()) {
-                app_timer_cancel(qtp_hide_timer);
+                //app_timer_cancel(qtp_hide_timer);
+				qtp_hide_timer = NULL;
         }
 }
 

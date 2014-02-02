@@ -49,10 +49,10 @@ bool was_BTconnected_last_time;
 
 // There's a bug with the battery_state_service_suscribe that makes it call the function even though
 // the battery percent did not changed. Those 2 bool are to avoid this bug.
-bool battery_below_20_already_triggered = false;
-bool battery_below_10_already_triggered = false;
+//bool battery_below_20_already_triggered = false;
+//bool battery_below_10_already_triggered = false;
 
-BatteryChargeState batt;
+//BatteryChargeState batt;
 
 /*
 
@@ -65,6 +65,7 @@ BatteryChargeState batt;
 
  */
 
+/*
 static const VibePattern custom_pattern_20 = {
   .durations = (uint32_t []) {300, 300, 300, 300, 300, 300, 300, 300},
   .num_segments = 8
@@ -74,7 +75,7 @@ static const VibePattern custom_pattern_10 = {
   .durations = (uint32_t []) {100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100},
   .num_segments = 12
 };  // 6 short vibes
-
+*/
 
 static GBitmap *images[TOTAL_IMAGE_SLOTS];
 static BitmapLayer *image_layers[TOTAL_IMAGE_SLOTS];
@@ -239,6 +240,7 @@ void bluetooth_handler(bool connected) {
 	was_BTconnected_last_time = connected;
 }
 
+/*
 void make_vibes_20()  {
 	vibes_enqueue_custom_pattern(custom_pattern_20);
 }
@@ -269,12 +271,14 @@ void battery_handler() {
 		battery_below_10_already_triggered = false;
 	}
 }
+*/
 
 static void init() {
     window = window_create();
     window_stack_push(window, true);
 	was_BTconnected_last_time = bluetooth_connection_service_peek();
-	
+
+/*
 	batt = battery_state_service_peek();
 	if (batt.charge_percent <= 10)  {
 		battery_below_10_already_triggered = true;
@@ -282,12 +286,13 @@ static void init() {
 	if (batt.charge_percent <= 20)  {
 		battery_below_20_already_triggered = true;
 	}
+*/
 	// Avoids a blank screen on watch start.
 	bluetooth_handler(was_BTconnected_last_time);
-	battery_handler();
+//	battery_handler();
 	tick_timer_service_subscribe(MINUTE_UNIT, handle_minute_tick);
 	bluetooth_connection_service_subscribe( bluetooth_handler );
-	battery_state_service_subscribe( battery_handler );	
+//	battery_state_service_subscribe( battery_handler );	
 }
 
 static void deinit() {
@@ -302,7 +307,7 @@ static void deinit() {
 	qtp_app_deinit();
 	tick_timer_service_unsubscribe();
 	bluetooth_connection_service_unsubscribe();
-	battery_state_service_unsubscribe();	
+//	battery_state_service_unsubscribe();	
 }
 
 int main(void) {
